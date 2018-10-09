@@ -44,7 +44,7 @@ An easy example of the testing pattern above when testing digital I/O . This par
 
 The test sequence above can be automated on the target hardware since it only relies on accessing the devices through the internal registers on the MCU.
 
-Additional hardware testing, such as measure pin levels with a multimeter or LED, must the manual or have dedicated test benches.
+Additional hardware testing, such as measure pin levels with a multimeter or LED, must be manual or have dedicated test benches that interacts with the hardware.
 
 
 #### Example unit test for analog-to-digital initialisation
@@ -65,7 +65,3 @@ void test_ACConverterIsInitialisedCorrectly(void)
 	TEST_ASSERT_BIT_HIGH(13, *p_ADC_CHSR);
 }
 ```
-
-
-
-### Mocking hardware

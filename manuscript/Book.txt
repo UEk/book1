@@ -1,6 +1,11 @@
 frontmatter.txt
 preface.md
 mainmatter.txt
+part_1_programming.txt
 basic_C.md
 coding_habits.md
+testing.md
+part_2_architecture.txt
+coding_patterns.md
+software_architecture.md
 endmatter.txt

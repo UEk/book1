@@ -1,6 +1,6 @@
 # Preface
 
-I have worked with developing embedded systems for over twenty years, mainly in aerospace and automotive industries. I have had different roles; tester, modeller, coder, and architect (and the only one I thought I was above average was as architect). One of the most instructive task I have done was to review code that did not work from suppliers and subcontractors, and try to pinpoint the problems and suggest improvements. It is then I realised that crafting good embedded software is a professional domain in its own, and is not easy to penetrate even for professional programmers.
+I have worked with developing embedded systems for over twenty years, mainly in aerospace and automotive industries. I have had different roles; tester, modeller, coder, and architect (and the only role I think I was above average was as architect). One of the most instructive task I have done was to review code that did not work from suppliers and subcontractors, and try to pinpoint the problems and suggest improvements. It is then I realised that crafting good embedded software is a professional domain in its own, and is not easy to penetrate even for professional programmers.
 
 The emrbyo for this book came when I left industry and taught embedded programming at college level for four years. My students always asked me if there isn't a book that covers what I teach in my courses (I assume as an alternative taking extensive notes in class) and I always had to answer that I haven't found any. So each chapter in this book originites from a lesson I gave. 
 

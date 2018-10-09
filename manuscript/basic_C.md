@@ -9,9 +9,10 @@ _Definition_ is the (only) place where a variable is created or space is reserve
 A function definition or prototype contains the code of what should be executed when it is called.
 _Declaration_ means those places in the program files where the type of a variable or function is described so it can be used correctly by the compiler, but no space is reserved in memory for it. A function declaration allows the compiler to evaluate if the function is used correctly with the correct argument types.
 
-_Common practice:_ You _define_ a variable in an c-file, not in an h-file. It is possible to do it in an h-file, and you probably would not even get a warning, but avoid it.
+T> You _define_ a variable in an c-file, not in an h-file. It is possible to do it in an h-file, and you probably would not even get a warning, but avoid it.
 
-_Common practice:_ You _declare_ a function in an h-file with the same name as the c-file where it is defined. Then it becomes easy to understand which h-file to be included to use a certain function.  
+T> You _declare_ a function in an h-file with the same name as the c-file where it is defined. Then it becomes easy to understand which h-file to be included to use a certain function.
+
 You can declare functions in the c-file using them (making updates hard to do) and you can share a joint h-file for multiple c-files, but avoid these practices.
 
 ## Types and type definitions
@@ -35,30 +36,29 @@ If `<inttypes.h>` is not available a simple tactic is to do your own type defini
 The following is from the MISRA-C 2004 Guidelines, rule 6.3:
 
 ```c
-typedef				char	char_t;
-typedef	signed		char	int8_t;
-typedef signed   	short	int16_t;
-typedef	signed   	int		int32_t;
-typedef signed   	long	int64_t;
-typedef	unsigned	char	uint8_t;
-typedef unsigned	short	uint16_t;
-typedef unsigned	int		uint32_t;
-typedef unsigned	long	uint64_t;
-typedef				float	float32_t;
-typedef				double	float64_t;
-typedef	long		double	float128_t
+typedef char            char_t;
+typedef signed char     int8_t;
+typedef signed short    int16_t;
+typedef signed int      int32_t;
+typedef signed long     int64_t;
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+typedef unsigned long   uint64_t;
+typedef float           float32_t;
+typedef double          float64_t;
+typedef long double     float128_t
 ```
-You can even make your own `inttypes.h` and make sure that is used in every source code file:
+You can even make your own `inttypes.h` similar to the code snippet above and make sure that is used in every source code file:
 
 ```c
 #include "inttypes.h"
 ```
 But beware that the exact implementation of `char`, `int`, `long` and `float` depends on your compiler, read the documentation!
 
-So when should you use signed or unsigned integers? A simple suggestion is:
-
-- For all cases when you need to manipulate singel bits or shift things right or left _always_ use unsigned
-- For all other cases use signed integers, even if you never expect the value to be below 0. There will not be a runtime check that the value is positive before assigning it to the variable anyway, and this way it will be even harder to debug.
+T> So when should you use signed or unsigned integers? A simple suggestion is:
+T> For all cases when you need to manipulate singel bits or shift things right or left _always_ use unsigned
+T> For all other cases use signed integers, even if you never expect the value to be below 0. There will not be a runtime check that the value is positive before assigning it to the variable anyway, and this way it will be even harder to debug.
 
 ## Masking
 
@@ -115,6 +115,83 @@ controlRegister |= 0x0040;
 ``` 
 _Note that this is sneaky since you can be led to believe that you acutally set the register with a single assembly instruction, but most processors will use several instrucitons to accomplish this._ We will talk more about this in the chapter in on interrupts.
 
+
+
+## Specifiers
+
+C does not have many protections against mistakes, so why not using the few of them there are? These specifiers are of great use to an embedded programmer, and a firm grasp of how to use them helps a lot.
+
+- `static`
+- `volatile`
+- `const`, and 
+- `extern`
+
+### Static
+Static has three uses in C:
+
+- A variable that is defined as static inside a funktion retains it value between the case of a function.  
+  _insert example code_
+
+- A variable that is defined as static in a module (i.e. a c-file), but outside of a function can be used by all functions within that module. But it cannot be used by functions in other modules. It is in practice a localised global variable.  
+  _insert example code_
+
+- A functions that is defined as static can only be called by other functions within that module, it hides the function from the world.  
+  _insert example code_
+
+These three uses makes more sense if you think of `static` as an instruction to the complier to not use the stack for these variables, and instead use a permanent (or static) address in RAM. Then it makes sense that you can keep e.g. variable values between funciton calls.
+
+### Volatile
+
+
+### const
+`const`is actually not a constant in C, unlike some other languages.
+
+
+The typical declaration is
+
+```c
+const uint32_t StatusRegister;
+```
+
+this is equivalent to
+
+```c
+uint32_t const StatusRegister;
+```
+both are treated the same by the compiler.
+
+This definition tells the compiler that you are not allowed to change `StatusRegister` in your code, e.g. you cannot assign `StatusRegister` a new value without getting a compiler error. It does not mean that the variable cannot change by other means, so it is not a true constant, e.g. in the case of a status register the variable could change depending on the status of the hardware device.
+
+From a memory perspective it is easy to think of the difference between a true constant, which would reside in the flash memory of the MCU, while a `const` variable will have a reserved memory area in the RAM, however the program, and programmer, is not allowed to modify that memory area.
+
+I cannot think of any situation where you would _need_ to use `const` to get your C-program to do what you want, but is good practice to use `const` anyway.
+
+The `const` qualifier is of special interest when it comes to declaring pointers, since it can prohibit you making some mistakes later on when using them. A common situation is when you want the pointer to always point at the same memory adress:
+
+```c
+uint32_t ADC_CR;
+uint32_t * const p_ADC_CR = &ADC_CR;
+```
+
+this is interpreted as `p_ADC_CR` is constant, and is pointing to a 32-bit integer. In this case the pointer `p_ADC_CR` can never point to any other memory address than where the variable `ADC_CR` is located.
+
+The opposite use is also possible; when the variable the pointer is pointing at should not be changed by the code, but the pointer can be changed to point to something else
+
+```c
+uint32_t ADC_SR;
+uint32_t const *p_SR = &ADC_SR;
+```
+
+Here the status register `ADC_SR` cannot be changed by dereferencing the pointer `p_SR`, but it is perfectly possible to let `p_SR` point to another status register instead of the A/D-converter.
+
+To summarise; `const` is not necessary, but it can prevent some silly mistakes, it allows the compiler to optimise stuff correctly, and it informs people reading the code about how a variable should be used.
+
+### Extern
+
+A variable that is _declared_ as extern in a module (c-file) is _defined_ in another module. The memory space is reserved when the compiler goes through the other module, but the compiler knows the type even though it does not reserve any memory space.
+You can therefore use the same variable name in multiple files and make them all adress the same memory space, this is being resolved by the linker.
+
+
 ## Function basics
 The following is a classic example used to understand how function parameters work in C:
 
@@ -169,74 +246,30 @@ int main(void)
 
 The code above may work, or not, but in most cases you will not know until you run the program. The program may even work in some cases, it all depends on if the variable `p_int` has a value that points to an unused memory address in the RAM. If it doesn't, you will either change an unknown place in the RAM memory or try to change some other hardware, which may or may not allow write access.
 
-## Specifiers
+### Pointers to control hardware
 
-C does not have many protections against mistakes, so why not using the few of them there are? These specifiers are of great use to an embedded programmer, and a firm grasp of how to use them helps a lot.
-
-- `static`
-- `volatile`
-- `const`, and 
-- `extern`
-
-### Static
-Static has three uses in C:
-
-- A variable that is defined as static inside a funktion retains it value between the case of a function.  
-  _insert example code_
-
-- A variable that is defined as static in a module (i.e. a c-file), but outside of a function can be used by all functions within that module. But it cannot be used by functions in other modules. It is in practice a localised global variable.  
-  _insert example code_
-
-- A functions that is defined as static can only be called by other functions within that module, it hides the function from the world.  
-  _insert example code_
-
-These three uses makes more sense if you think of `static` as an instruction to the complier to not use the stack for these variables, and instead use a permanent (or static) address in RAM. Then it makes sense that you can keep e.g. variable values between funciton calls.
-
-### Extern
-
-A variable that is declared as extern in a module (c-file) is defined in another module. The memory space is reserved when the compiler goes through another module, but the compiler knows the type even though it does not reserve any memory space.
-You can therefore use the same variable name in multiple files and make the all adress the same memory space, this is being resolved by the linker.
-
-### const
-`const`is actually not a constant in C, unlike some other languages.
+Declaration of the pointer
+```c
+uint32_t *const p_ADC_CR = (uint32_t *) 0x400C0000U;
+```
+![Pointer to a hardware register](images/hw_pointer1.png)
 
 
-The typical declaration is
+Start the analog-to-digital conversion in the program
 
 ```c
-const uint32_t StatusRegister;
+#define STARTADC 0x0002U /* bit 1 starts ADC */
+*p_ADC_CR = STARTADC;
 ```
 
-this is equivalent to
+With a nice `#define`
 
 ```c
-uint32_t const StatusRegister;
+#define ADC_CR (*p_ADC_CR)
 ```
-both are treated the same by the compiler.
-
-This definition tells the compiler that you are not allowed to change `StatusRegister` in your code, e.g. you cannot assign `StatusRegister` a new value without getting a compiler error. It does not mean that the variable cannot change by other means, so it is not a true constant, e.g. in the case of a status register the variable could change depending on the status of the hardware device.
-
-From a memory perspective it is easy to think of the difference between a true constant, which would reside in the flash memory of the MCU, while a `const` variable will have a reserved memory area in the RAM, however the program, and programmer, is not allowed to modify that memory area.
-
-I cannot think of any situation where you would _need_ to use `const` to get your C-program to do what you want, but is good practice to use `const` anyway.
-
-The `const` qualifier is of special interest when it comes to declaring pointers, since it can prohibit you making some mistakes later on when using them. A common situation is when you want the pointer to always point at the same memory adress:
-
-```c
-uint32_t ADC_CR;
-uint32_t * const p_ADC_CR = &ADC_CR;
+It is possible to write
+```
+ADC_CR = STARTADC;
 ```
 
-this is interpreted as `p_ADC_CR` is constant, and is pointing to a 32-bit integer. In this case the pointer `p_ADC_CR` can never point to any other memory address than where the variable `ADC_CR` is located.
-
-The opposite use is also possible; when the variable the pointer is pointing at should not be changed by the code, but the pointer can be changed to point to something else
-
-```c
-uint32_t ADC_SR;
-uint32_t const *p_SR = &ADC_SR;
-```
-
-Here the status register `ADC_SR` cannot be changed by dereferencing the pointer `p_SR`, but it is perfectly possible to let `p_SR` point to another status register instead of the A/D-converter.
-
-To summarise; `const` is not necessary, but it can prevent some silly mistakes, it allows the compiler to optimise stuff correctly, and it informs people reading the code about how a variable should be used.
-
+![Declaration of the pointer to a hardware register](images/hw_pointer2.png)
