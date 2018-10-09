@@ -1,6 +1,6 @@
 # Key elements in C you need to know
 
-This is not a book on C programmming, and this chapter is just  short refresher of some basic concepts that you will need to know, if you feel unsure about C get a good textbook. The classic text on C is Kernighan and Ritchie's "C Programming Language" from 1988, however you might prefer a more modern book such as B. Klemens' "21st Century C" from 2014 or K. N. King's "C Programming: A Modern Approach" from 2008. If you jusrt want a refresher you cna download [Essential C](http://cslibrary.stanford.edu/101/), which is a 45 page summary of the C language by Nick Parlante.
+This is not a book on C programmming, and this chapter is just  short refresher of some basic concepts that you  need to know, if you feel unsure about C get a good textbook. The classic text on C is Kernighan and Ritchie's "C Programming Language" from 1988, however you might prefer a more modern book such as B. Klemens' "21st Century C" from 2014 or K. N. King's "C Programming: A Modern Approach" from 2008. If you just want a refresher you can download [Essential C](http://cslibrary.stanford.edu/101/), which is a 45-page summary of the C language by Nick Parlante.
 
 ## Definition versus declaration
 There might be some confusion of these two terms (even if they are defined in K&R p. 170), but I have tried to use the following conventions as consistently as possible in the rest of the text.
